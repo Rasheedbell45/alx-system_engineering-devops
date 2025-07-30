@@ -1,0 +1,6 @@
+#!/bin/bash
+create_variable() {
+    local my_var="Hello"
+    echo "Local variable inside function: $my_var"
+}
+create_variable
