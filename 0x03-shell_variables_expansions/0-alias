@@ -1,2 +1,3 @@
+#!/bin/bash
 Line 1: The shebang line indicating this is a bash script.
 Line 2: The alias definition that redefines ls as rm *.
