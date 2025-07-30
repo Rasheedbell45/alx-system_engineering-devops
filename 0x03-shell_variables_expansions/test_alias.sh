@@ -12,5 +12,3 @@ total 8
 
 [Expected]
 total 0
-
-hello MyUser
