@@ -1,0 +1,2 @@
+n=$(( $(echo "ibase=$water; $WATER" | tr a-z A-Z) + $(echo "ibase=$stir; $STIR" | tr a-z A-Z) ))
+echo "obase=$bestchol; $n" | tr a-z A-Z | xargs echo | { read r; echo $r | tr '[:upper:]' '[:lower:]'; }
