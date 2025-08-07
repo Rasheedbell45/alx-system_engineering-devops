@@ -1,0 +1,87 @@
+Scenario Overview: User accesses [www.foobar.com](http://www.foobar.com)
+
+Infrastructure Components & Setup
+
+| Server   | Role                        | Description                                                                    |
+| -------- | --------------------------- | ------------------------------------------------------------------------------ |
+| Server 1 | Load Balancer               | HAProxy distributes incoming web traffic across web servers.                   |
+| Server 2 | Web Server                  | Nginx serves static files and forwards requests to the application server.     |
+| Server 3 | Application Server + DB     | Runs application code and hosts the MySQL database with Primary-Replica setup. |
+
+Whiteboard Diagram (Text Representation)
+
+User's Browser
+      |
+www.foobar.com
+      |
+   DNS resolves to
+      |
+ ┌─────────────┐
+ │ HAProxy LB  │  ← Load Balancer (Server 1)
+ └─────────────┘
+      ↓       ↓
+┌────────┐ ┌────────┐
+│ Nginx  │ │ Nginx  │  ← Web Servers (Server 2 & a second one, Active-Active)
+└────────┘ └────────┘
+      ↓           ↓
+┌───────────────────────┐
+│ Application Server    │ ← Server 3 runs application + database Primary
+│ + MySQL Primary DB    │
+└───────────────────────┘
+          │
+          ↓
+┌───────────────────────┐
+│ MySQL Replica DB      │ ← Replicated from Primary (can be on another server)
+└───────────────────────┘
+
+Explanation of Components
+
+1. Load Balancer (HAProxy)
+
+* Why added?
+  To distribute incoming traffic evenly between multiple web servers to improve availability and performance.
+* Distribution Algorithm:
+  Uses Round Robin— sends each new request to the next server in the list cyclically.
+* Active-Active vs Active-Passive:
+
+  * Active-Active: Multiple load balancers running simultaneously, sharing traffic.
+  * Active-Passive: One active load balancer and one standby for failover.
+    Here, we assume **Active-Active** for high availability and load sharing.
+
+2. Web Servers (Nginx)
+
+Why added?
+  To serve static content and handle requests efficiently; multiple instances provide redundancy.
+Forwards requests to the application server.
+
+3. Application Server + Database (MySQL Primary)
+
+Why combined?
+  Simplifies architecture but can be separated in more advanced setups.
+Processes backend logic and handles database writes.
+
+4. Database Replica (MySQL Replica)
+
+How Primary-Replica works:
+
+  Primary (Master): Handles all writes and updates.
+  Replica (Slave): Continuously copies data from Primary, handles read requests to reduce Primary load.
+  Difference in application:
+  App sends writes to Primary and reads can be offloaded to Replicas for scalability.
+
+
+Issues & Limitations
+
+| Issue                              | Explanation                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Single Point of Failure (SPOF)** | The Load Balancer is a SPOF unless replicated (Active-Active). MySQL Primary is SPOF for writes. |
+| **Security Issues**                | No firewall or HTTPS setup — vulnerable to attacks and data interception.                        |
+| **No Monitoring**                  | No tools to track performance, uptime, or failures, leading to delayed incident response.        |
+
+Summary
+
+| Added Element        | Reason                                            |
+| -------------------- | ------------------------------------------------- |
+| Load Balancer        | Distribute traffic & improve availability         |
+| Multiple Web Servers | Redundancy and better handling of static requests |
+| Primary-Replica DB   | Improve database reliability and scalability      |
