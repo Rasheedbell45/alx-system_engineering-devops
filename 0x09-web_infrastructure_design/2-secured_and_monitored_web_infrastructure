@@ -1,0 +1,99 @@
+Scenario: User accesses [https://www.foobar.com](https://www.foobar.com) securely and reliably
+
+Infrastructure Components & Design
+
+User's Browser
+      |
+    HTTPS (TLS)
+      |
+  Internet Firewall 1
+      |
+ ┌─────────────┐
+ │ HAProxy LB  │  ← Load Balancer (Server 1) with SSL Termination
+ └─────────────┘
+      |
+  Internal Firewall 2
+      |
+┌────────┐   ┌────────┐
+│ Nginx  │   │ Nginx  │  ← Web Servers (Server 2 & Server 3)
+└────────┘   └────────┘
+      |           |
+Internal Firewall 3 |
+      |           |
+┌───────────────────────┐
+│ Application Servers +  │
+│ MySQL Primary & Replica│
+└───────────────────────┘
+
+Monitoring Clients (SumoLogic agents) installed on each server collect logs and metrics
+and send data to centralized monitoring platform.
+
+Explanation of Added Elements
+
+Firewalls (3 total)
+
+* Why added?
+  Protect servers from unauthorized access and attacks by filtering traffic.
+* Roles:
+
+  1. Internet Firewall: Protects from external threats at network edge.
+  2. Internal Firewall (between LB and Web Servers): Limits lateral movement if LB is compromised.
+  3. Internal Firewall (around DB & App servers): Protects critical app and database servers.
+* Firewalls block unwanted ports and allow only necessary traffic.
+
+SSL Certificate for HTTPS
+
+* Why serve traffic over HTTPS?
+  Encrypts communication between user browsers and the server, ensuring data privacy and integrity.
+* Ensures:
+
+  * Data cannot be intercepted or tampered with (confidentiality).
+  * Builds user trust with browser padlocks and certificates.
+
+Monitoring Clients (e.g., SumoLogic)
+
+* Why added?
+  To collect logs, metrics, and performance data for health monitoring, troubleshooting, and capacity planning.
+* How it works:
+
+  * Agents run on each server, gathering data like CPU usage, request rates, error logs, and more.
+  * Agents send this data to a centralized monitoring platform for visualization and alerting.
+
+Monitoring Web Server QPS (Queries Per Second)
+
+* Collect access logs on the web server (Nginx).
+* Use monitoring agents to parse logs and extract request rates.
+* Set alerts for abnormal traffic spikes or drops.
+
+Infrastructure Issues & Why They Matter
+
+1. Terminating SSL at Load Balancer
+
+* Issue:
+  If SSL is terminated at LB, traffic between LB and internal servers is unencrypted, exposing data to internal threats.
+* Solution:
+  Use end-to-end encryption by enabling SSL on backend servers or use a secure internal network.
+
+2. Single MySQL Write Server
+
+* Issue:
+  The Primary MySQL server handling all writes is a SPOF — if it fails, writes stop, and application degrades.
+* Solution:
+  Use clustering or multi-primary replication for high availability and failover.
+
+3. Servers with Identical Components
+
+* Issue:
+  Running database, web, and app on the same servers reduces fault isolation, makes scaling inefficient, and complicates maintenance.
+* Solution:
+  Separate concerns by dedicating servers for each role (DB, web, app).
+
+Summary Table
+
+| Component                   | Purpose / Why Added                                          |
+| --------------------------- | ------------------------------------------------------------ |
+| 3 Firewalls                 | Network security, protect against unauthorized access        |
+| SSL Certificate             | Encrypt data in transit, ensure privacy and trust            |
+| Monitoring Agents           | Collect logs and metrics for health and performance tracking |
+| Load Balancer (HAProxy)     | Distribute traffic, terminate SSL (with caveats)             |
+| Separate Servers            | Specialize roles, improve fault tolerance and scalability    |
