@@ -1,0 +1,97 @@
+One-Server Web Infrastructure Design (www.foobar.com)
+1. User Request Flow
+A user types www.foobar.com in their browser.
+
+The browser queries the Domain Name System (DNS) to resolve www.foobar.com to an IP address.
+
+The DNS returns 8.8.8.8, which is the public IP address of the server hosting the website.
+
+The browser sends an HTTP request to 8.8.8.8.
+
+The web server (Nginx) listens on port 80 (HTTP) or 443 (HTTPS), receives the request, and forwards it to the application server.
+
+The application server processes the request using the application files/code.
+
+If needed, the application server queries the MySQL database.
+
+The response is generated and sent back to the user’s browser via the web server.
+
+Infrastructure Components
+Component	Description
+1 Server	A virtual or physical machine (e.g., Ubuntu on a cloud VM) with a public IP (8.8.8.8)
+Web Server	Nginx receives HTTP requests and proxies them to the application server
+Application Server	Could be Gunicorn (for Python apps), uWSGI, or a simple backend like Django/Flask, Node.js
+Application Files	Source code and static files (e.g., /var/www/myapp/)
+Database	MySQL handles data storage, queries, and persistence
+Domain Name	foobar.com mapped to server IP 8.8.8.8 using DNS records
+
+Key Concepts Explained
+What is a server?
+A server is a physical or virtual computer that provides services (like websites, applications, or databases) to clients (users or other computers).
+
+What is the role of a domain name?
+A domain name (like foobar.com) is a human-readable address that maps to the server’s IP address, allowing users to access your website without remembering numbers.
+
+What type of DNS record is www in www.foobar.com?
+www is a subdomain, and it typically uses an A record or CNAME record in DNS:
+
+A record → points directly to an IP (e.g., 8.8.8.8).
+
+CNAME record → points to another domain (e.g., www → foobar.com).
+
+What is the role of the web server (Nginx)?
+Listens for HTTP/HTTPS requests from clients.
+
+Serves static files (HTML, CSS, images).
+
+Forwards dynamic requests to the application server.
+
+Handles load balancing and SSL (optional in one-server setup).
+
+What is the role of the application server?
+Runs your backend logic (e.g., Django, Flask, Node.js).
+
+Processes user requests, interacts with the database, and returns responses.
+
+Often listens on an internal port (e.g., 8000) behind Nginx.
+
+What is the role of the database (MySQL)?
+Stores data like users, posts, comments, etc.
+
+Provides query access to the application logic.
+
+Ensures data persistence and consistency.
+
+How does the server communicate with the user's computer?
+Through the HTTP or HTTPS protocol over TCP/IP.
+
+The server and client communicate via port 80 (HTTP) or port 443 (HTTPS) using the IP address (8.8.8.8).
+
+Infrastructure Issues (Limitations)
+Limitation	Description
+SPOF (Single Point of Failure)	If the single server fails, the entire website becomes unreachable.
+Downtime during maintenance	Updating or restarting any component (web, app, DB) causes full downtime.
+No scalability	One server can't handle high traffic. No way to horizontally scale.
+
+Diagram Overview (Text-Based)
+User --> DNS --> 8.8.8.8
+              ↓
+          ┌────────────┐
+          │   Server   │ (IP: 8.8.8.8)
+          └────────────┘
+                ↓
+          ┌────────────┐
+          │  Nginx     │ (Web Server)
+          └────────────┘
+                ↓
+          ┌────────────┐
+          │  Gunicorn  │ (App Server)
+          └────────────┘
+                ↓
+          ┌────────────┐
+          │  Django    │ (Code)
+          └────────────┘
+                ↓
+          ┌────────────┐
+          │  MySQL     │ (Database)
+          └────────────┘
