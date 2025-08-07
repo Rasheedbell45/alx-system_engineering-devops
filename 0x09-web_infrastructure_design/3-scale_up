@@ -1,0 +1,68 @@
+Web Infrastructure: Application Server vs Web Server
+
+Infrastructure Overview
+
+This infrastructure consists of 3 dedicated servers for different roles:
+
+* 1 Web Server: Handles HTTP requests, serves static content, and acts as a reverse proxy.
+* 1 Application Server: Processes business logic and dynamic content.
+* 1 Database Server: Manages data storage and retrieval.
+* 2 Load Balancers (HAProxy): Configured as a cluster for high availability and load distribution.
+
+Components & Their Roles
+
+1. Web Server
+
+* Purpose:
+  Handles incoming HTTP/HTTPS requests from users.
+  Serves static files like images, CSS, and JavaScript.
+  Forwards dynamic requests to the application server.
+* Why separate?
+  Offloads static content delivery from the application server, improving performance and scalability.
+
+2. Application Server
+
+* Purpose:
+  Runs the backend application code (e.g., Python, Node.js).
+  Handles business logic, database queries, and API endpoints.
+* Why separate?
+  Isolates computational logic from static file serving, allowing independent scaling and security.
+
+3. Database Server
+
+* Purpose:
+  Stores and manages persistent data (e.g., MySQL).
+  Ensures data consistency, reliability, and backup.
+* Why separate?
+  Provides data isolation, security, and dedicated resources for database operations.
+
+4. Load Balancers (HAProxy Cluster)
+
+* Purpose:
+  Distributes incoming traffic across the web servers.
+  Provides fault tolerance by clustering two load balancers (Active-Active or Active-Passive).
+* Why add load balancers?
+  Ensures high availability and efficient traffic management.
+  Prevents any single load balancer failure from impacting the system.
+
+Why This Setup?
+
+* Performance:
+  Splitting responsibilities lets each server focus on specific tasks, improving speed.
+* Scalability:
+  Servers can be scaled independently depending on load (e.g., more app servers without adding DB servers).
+* Fault Tolerance:
+  HAProxy cluster and dedicated servers reduce single points of failure.
+* Security:
+  Isolating servers minimizes attack surface and improves access control.
+
+Summary
+
+| Server             | Role                            | Reason to Separate                             |
+| ------------------ | ------------------------------- | ---------------------------------------------- |
+| Web Server         | Serve static content & proxy    | Improves performance and isolates concerns     |
+| Application Server | Handle business logic           | Dedicated resources for application processing |
+| Database Server    | Data persistence and queries    | Data security and reliability                  |
+| Load Balancer      | Distribute traffic and failover | High availability and traffic management       |
+
+This infrastructure is a solid foundation for robust, scalable, and maintainable web applications.
