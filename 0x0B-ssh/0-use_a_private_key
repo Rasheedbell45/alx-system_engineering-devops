@@ -1,4 +1,6 @@
-sylvain@ubuntu$ ./0-use_a_private_key
-ubuntu@server01:~$ exit
-Connection to 8.8.8.8 closed.
-sylvain@ubuntu$
+#!/bin/bash
+# Connect to server as ubuntu using single-character ssh flags, no -i or -l
+
+# Usage: ./ssh_connect.sh <server-ip-or-hostname>
+
+ssh ubuntu@"$1"
