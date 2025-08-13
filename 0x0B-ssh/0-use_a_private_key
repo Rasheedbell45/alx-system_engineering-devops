@@ -1,5 +1,4 @@
 #!/bin/bash
-# Connect to server as ubuntu using single-character ssh flags, no -i or -l
 
 # Usage: ./ssh_connect.sh <server-ip-or-hostname>
 
