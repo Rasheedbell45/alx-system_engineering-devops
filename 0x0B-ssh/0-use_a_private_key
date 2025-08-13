@@ -1,0 +1,6 @@
+#!/bin/bash
+# Connect to server as ubuntu using single-character ssh flags
+
+# Usage: ./ssh_connect.sh <server-ip-or-hostname>
+
+ssh -i ~/.ssh/school ubuntu@"$1"
