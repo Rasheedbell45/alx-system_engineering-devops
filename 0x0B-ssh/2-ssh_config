@@ -1,0 +1,5 @@
+# SSH client configuration for passwordless login using the 'school' key
+
+Host *
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no
